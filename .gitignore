@@ -1,0 +1,13 @@
+# ignore build folder
+build/
+
+#ignore system folder
+*.DS_Store
+*.yaml
+*.cmake
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+*.sw*
+*.txt
