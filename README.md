@@ -18,7 +18,7 @@ When rendering a solid triangle on a digital display, it is necessary to rasteri
 I do it first to identify its bounding box. Subsequently, it is necessary to traverse every pixel within the bounding box and ascertain whether it lies inside the triangle ([sample](https://graphics32.github.io/Docs/Additional%20Topics/Sampling%20and%20Rasterization.htm)). If a pixel falls within the triangle, it is essential to determine whether its depth value can update the Z-buffer. The pixel should be colored only if the depth value can be updated. 
 ### Algorithm Outline
 
-```
+```c++
 // Find out the bounding box of current triangle
 int boundingBox_xLeft= MIN(triangle[0].x,triangle[1].x,triangle[2].x)
 int boundingBox_xRight=MAX(triangle[0].x,triangle[1].x,triangle[2].x)
@@ -26,7 +26,7 @@ int boundingBox_yLeft=MIN(triangle[0].y,triangle[1].y,triangle[2].y)
 int boundingBox_yRight=MAX(triangle[0].y,triangle[1].y,triangle[2].y)
 
 //iterate through each pixel and find out if the current pixel is inside the triangle 
-for each boundingBox_pixel do
+for each boundingBox_pixel i do
     if(insideTriangle())
         //interpolated depth value to calculate z value of that pixel
         z = interpolated()
@@ -34,6 +34,7 @@ for each boundingBox_pixel do
         if(z>depth_buffer)
             depth_buffer=z
             setPixelColor()
+end
 ```
 
 ### Inside triangle
