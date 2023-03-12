@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/build",
+  "command": "/usr/bin/clang++  -I/opt/homebrew/include -isystem /opt/homebrew/Cellar/opencv@3/3.4.16_5/include -isystem /opt/homebrew/Cellar/opencv@3/3.4.16_5/include/opencv -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -mmacosx-version-min=13.0 -o CMakeFiles/Rasterizer.dir/main.cpp.o -c \"/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/main.cpp\"",
+  "file": "/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/main.cpp",
+  "output": "CMakeFiles/Rasterizer.dir/main.cpp.o"
+},
+{
+  "directory": "/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/build",
+  "command": "/usr/bin/clang++  -I/opt/homebrew/include -isystem /opt/homebrew/Cellar/opencv@3/3.4.16_5/include -isystem /opt/homebrew/Cellar/opencv@3/3.4.16_5/include/opencv -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -mmacosx-version-min=13.0 -o CMakeFiles/Rasterizer.dir/rasterizer.cpp.o -c \"/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/rasterizer.cpp\"",
+  "file": "/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/rasterizer.cpp",
+  "output": "CMakeFiles/Rasterizer.dir/rasterizer.cpp.o"
+},
+{
+  "directory": "/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/build",
+  "command": "/usr/bin/clang++  -I/opt/homebrew/include -isystem /opt/homebrew/Cellar/opencv@3/3.4.16_5/include -isystem /opt/homebrew/Cellar/opencv@3/3.4.16_5/include/opencv -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk -mmacosx-version-min=13.0 -o CMakeFiles/Rasterizer.dir/Triangle.cpp.o -c \"/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/Triangle.cpp\"",
+  "file": "/Users/naname/Documents/GAMES101/Homework2(eigen+opencv3)/代码框架/Triangle.cpp",
+  "output": "CMakeFiles/Rasterizer.dir/Triangle.cpp.o"
+}
+]
