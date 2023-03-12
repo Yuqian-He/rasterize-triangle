@@ -115,7 +115,7 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
     }
 }
 
-//Screen space rasterization
+//-------------------------------------------Screen space rasterization---------------------------------------------
 void rst::rasterizer::rasterize_triangle(const Triangle& t) 
 {
 
@@ -123,11 +123,13 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t)
     float alpha, beta, gamma;
     std::tuple<float, float, float> angle(alpha, beta, gamma);
     
+    //bounding box
     int x_min = MIN(v[0].x(), MIN(v[1].x(),v[2].x()));
     int x_max = MAX(v[0].x(), MAX(v[1].x(),v[2].x()));
 
     int y_min = MIN(v[0].y(), MIN(v[1].y(),v[2].y()));
     int y_max = MAX(v[0].y(), MAX(v[1].y(),v[2].y()));
+    
     
     for(int i = x_min; i <= x_max; i++){
         for(int j = y_min; j <= y_max; j++){
