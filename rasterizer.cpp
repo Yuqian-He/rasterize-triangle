@@ -33,6 +33,7 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
     return Vector4f(v3.x(), v3.y(), v3.z(), w);
 }
 
+//---------------------------------------------------------------inside triangle-------------------------------------------------------
 static bool insideTriangle(int x, int y, const Vector3f* _v)
 {   
     Vector3f ans1, ans2, ans3, vec1, vec2, vec3;
@@ -115,7 +116,7 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
     }
 }
 
-//-------------------------------------------Screen space rasterization---------------------------------------------
+//-------------------------------------------Screen space rasterization--------------------------------------------------
 void rst::rasterizer::rasterize_triangle(const Triangle& t) 
 {
 
@@ -130,23 +131,61 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t)
     int y_min = MIN(v[0].y(), MIN(v[1].y(),v[2].y()));
     int y_max = MAX(v[0].y(), MAX(v[1].y(),v[2].y()));
     
-    
-    for(int i = x_min; i <= x_max; i++){
-        for(int j = y_min; j <= y_max; j++){
-            if(insideTriangle(i+0.5, j+0.5, t.v)){
-                auto angle = computeBarycentric2D(i+0.5, j+0.5, t.v);
-                float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-                z_interpolated *= w_reciprocal;
+    //define sample from 0
+    int n=1;
+    int m=1;
 
-                if (depth_buf[get_index(i,j)] > z_interpolated){
-                    Vector3f color = t.getColor();
-                    Vector3f point(3);
-                    point << (float)i, (float)j, z_interpolated;
-                    depth_buf[get_index(i, j)] = z_interpolated;
-                    set_pixel(point, color);
+    for(int i = x_min; i <= x_max; i++){
+        for(int j = y_min; j <= y_max; j++)
+        {
+            std::vector<Vector3f> onePixelColor;
+            std::vector<float> pixel_z;
+            for(int a=0;a<n;++a)
+            {
+                for(int b=0;b<m;++b)
+                {
+                    auto x_msaa=i+((1/(a+1))/2)*(2*a+1);
+                    auto y_msaa=j+1-((1/(b+1))/2)*(2*b+1);
+
+                    if(insideTriangle(x_msaa,y_msaa,t.v))
+                    {
+                        auto angle=computeBarycentric2D(x_msaa,y_msaa,t.v);
+                        float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                        float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                        z_interpolated *= w_reciprocal;
+
+                        if(z_interpolated<msaa_depth_buf[get_index(i,j)])
+                        {
+                            Vector3f color=t.getColor();
+                            Vector3f point(3);
+                            point << (float)x_msaa, (float)y_msaa, z_interpolated;
+                            msaa_depth_buf[get_index(x_msaa,y_msaa)] = z_interpolated;
+                            onePixelColor.push_back(color);
+                            pixel_z.push_back(z_interpolated);
+                        }
+                    }
                 }
             }
+            auto count=onePixelColor.size();
+            Vector3f c;
+            for(int q=0;q<count;++q)
+            {
+                c << c[0]+onePixelColor[q][0], c[1]+onePixelColor[q][1], c[2]+onePixelColor[q][2];
+            }
+
+            auto angle=computeBarycentric2D(i+0.5,j+0.5,t.v);
+            float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+            float z_interpolat = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+            z_interpolat *= w_reciprocal;
+
+            if(z_interpolat<depth_buf[get_index(i,j)])
+            {
+                depth_buf[get_index(i,j)]=z_interpolat;
+            }
+            Vector3f pix;
+            pix << i,j,z_interpolat;
+
+            set_pixel(pix, c/4);
         }
     }
 

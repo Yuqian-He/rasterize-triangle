@@ -75,6 +75,8 @@ namespace rst
 
         void rasterize_triangle(const Triangle& t);
 
+        int msaa(int x, int y, const Vector3f* _v, int n, int m, float z, Eigen::Vector3f color);
+
         // VERTEX SHADER -> MVP -> Clipping -> /.W -> VIEWPORT -> DRAWLINE/DRAWTRI -> FRAGSHADER
 
     private:
@@ -87,8 +89,10 @@ namespace rst
         std::map<int, std::vector<Eigen::Vector3f>> col_buf;
 
         std::vector<Eigen::Vector3f> frame_buf;
+        std::vector<Eigen::Vector3f> msaa_frame_buf;
 
         std::vector<float> depth_buf;
+        std::vector<float> msaa_depth_buf;
         int get_index(int x, int y);
 
         int width, height;

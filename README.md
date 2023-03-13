@@ -47,5 +47,11 @@ To determine whether a point is inside a triangle, I used the cross product of t
 ## Multi-Sample Anti-Aliasing (MSAA)
 ### Aliasing Artifacts
 [Aliasing Artifacts](https://education.siggraph.org/static/HyperGraph/aliasing/alias2a.htm#:~:text=The%20errors%20caused%20by%20aliasing,fine%20detail%2C%20and%20disintegrating%20textures.) caused by signals changing too fase (high frequency), but sampled too slowly
-### 
+### MSAA
+MSAA works by sampling each pixel multiple times, and then averaging the color values of the samples to produce a smoother image. MSAA computationally expensive than other anti-aliasing techniques, but it produces high-quality results with minimal performance impact.
+
+# Result
+
+
+
 
