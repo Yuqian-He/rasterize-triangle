@@ -53,5 +53,24 @@ MSAA works by sampling each pixel multiple times, and then averaging the color v
 # Result
 
 
+# Building
+
+```
+# Setup environment 
+
+# Download repository
+$ git clone git@github.com:Yuqian-He/rasterize-triangle.git
+$ cd rasterize-triangle
+
+# Configure and build project
+$ mkdir build
+$ cd build
+$ cmake .. 
+$ make
+
+# Run the program
+$ ./Rasterizer
+```
+
 
 
