@@ -40,9 +40,19 @@ end
 ### Inside triangle
 To determine whether a point is inside a triangle, I used the cross product of the vectors formed by the three points of the triangle and the point being tested, with the edge vectors of the triangle. If the resulting signs of the cross products are all the same, then the point is inside the triangle. If there are different signs, then the point is outside the triangle.
 
-### interpolate
-
 ### depth buffer
+Here is Z-Buffer Algorithm:
+
+```c++
+for each triangle T 
+  for each sample(x,y,z) in T
+    if(z<zbuffer[x,y])           //closest sample so far 
+      frameBuffer[x,y]=rgb;      //update color
+      zbuffer[x,y]=z;            //update depth
+    else      //nothing
+```
+
+### interpolate
 
 ## Multi-Sample Anti-Aliasing (MSAA)
 ### Aliasing Artifacts
@@ -51,7 +61,10 @@ To determine whether a point is inside a triangle, I used the cross product of t
 MSAA works by sampling each pixel multiple times, and then averaging the color values of the samples to produce a smoother image. MSAA computationally expensive than other anti-aliasing techniques, but it produces high-quality results with minimal performance impact.
 
 # Result
-
+Rendered two triangle without triangle
+![](assets/render%20two%20triangle.png)
+Compared after MSAA (before & after)
+![](assets/beforeMSAA.png) ![](assets/afterMSAA.png)
 
 # Building
 

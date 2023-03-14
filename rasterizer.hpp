@@ -74,8 +74,7 @@ namespace rst
         void draw_line(Eigen::Vector3f begin, Eigen::Vector3f end);
 
         void rasterize_triangle(const Triangle& t);
-
-        int msaa(int x, int y, const Vector3f* _v, int n, int m, float z, Eigen::Vector3f color);
+        int MSAA(int x, int y, const Vector3f* _v, int n, int m, float z, Eigen::Vector3f color);
 
         // VERTEX SHADER -> MVP -> Clipping -> /.W -> VIEWPORT -> DRAWLINE/DRAWTRI -> FRAGSHADER
 

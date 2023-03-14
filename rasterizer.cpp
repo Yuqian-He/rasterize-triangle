@@ -34,28 +34,23 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 }
 
 //---------------------------------------------------------------inside triangle-------------------------------------------------------
-static bool insideTriangle(int x, int y, const Vector3f* _v)
+static bool insideTriangle(float x, float y, const Vector3f* _v, float size_x, float size_y)
 {   
-    Vector3f ans1, ans2, ans3, vec1, vec2, vec3;
-
-    vec1 = _v[1] - _v[0];
-    ans1 = vec1.cross(Vector3f(x - _v[0][0], y - _v[0][1], 0));     
-
-    vec2 = _v[2] - _v[1];
-    ans2 = vec2.cross(Vector3f(x - _v[1][0], y - _v[1][1], 0));   
-
-    if(ans1.transpose()*ans2<0){
+    float x_mid = x + size_x/2.0;
+    float y_mid = y + size_y/2.0;
+    Eigen::Vector2f CA(_v[0].x()-_v[2].x(), _v[0].y()-_v[2].y());
+    Eigen::Vector2f AP(x_mid-_v[0].x(), y_mid-_v[0].y());
+    Eigen::Vector2f AB(_v[1].x()-_v[0].x(), _v[1].y()-_v[0].y());
+    Eigen::Vector2f BP(x_mid-_v[1].x(), y_mid-_v[1].y());
+    Eigen::Vector2f BC(_v[2].x()-_v[1].x(), _v[2].y()-_v[1].y());
+    Eigen::Vector2f CP(x_mid-_v[2].x(), y_mid-_v[2].y());
+    
+    // cross product have equal sign
+    if ((CA.x()*AP.y()-CA.y()*AP.x()>=0) == (AB.x()*BP.y()-AB.y()*BP.x()>=0) && (AB.x()*BP.y()-AB.y()*BP.x()>=0) == (BC.x()*CP.y()-BC.y()*CP.x()>=0)) {
+        return true;    
+    } else {
         return false;
-    }  
-
-    vec3 = _v[0] - _v[2];
-    ans3 = vec3.cross(Vector3f(x - _v[2][0], y - _v[2][1], 0));
-
-    if(ans1.transpose()*ans3 < 0){
-        return false;
-    }
-
-    return true;
+    } 
 
 }
 
@@ -66,6 +61,8 @@ static std::tuple<float, float, float> computeBarycentric2D(float x, float y, co
     float c3 = (x*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*y + v[0].x()*v[1].y() - v[1].x()*v[0].y()) / (v[2].x()*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*v[2].y() + v[0].x()*v[1].y() - v[1].x()*v[0].y());
     return {c1,c2,c3};
 }
+
+
 
 void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf_id col_buffer, Primitive type)
 {
@@ -116,6 +113,29 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
     }
 }
 
+int rst::rasterizer::MSAA(int x, int y, const Vector3f* _v, int n, int m, float z, Eigen::Vector3f color)
+{
+    float size_x = 1.0/n; // the size_x of every super sample pixel
+    float size_y = 1.0/m;
+
+    int blocksinTriangle = 0;
+    for(int i=0; i<n; ++i) 
+        for(int j=0; j<m; ++j) {
+            if (z>msaa_depth_buf[get_index(x,y)*4 + i*2 + j] && insideTriangle(x+i*size_x, y+j*size_y, _v, size_x, size_y)) {
+                msaa_depth_buf[get_index(x,y)*4 + i*2 +j] = z;
+                msaa_frame_buf[get_index(x,y)*4 + i*2 +j] = color;
+                blocksinTriangle ++;
+            }
+                // std::cout<<blocksinTriangle<<std::endl;
+                // std::cout<<"true"<<std::endl;
+            // } else {
+            //     std::cout<<"false"<<std::endl;
+            // }
+        }
+    
+    return blocksinTriangle;
+}
+
 //-------------------------------------------Screen space rasterization--------------------------------------------------
 void rst::rasterizer::rasterize_triangle(const Triangle& t) 
 {
@@ -132,60 +152,26 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t)
     int y_max = MAX(v[0].y(), MAX(v[1].y(),v[2].y()));
     
     //define sample from 0
-    int n=1;
-    int m=1;
+    int n=2;
+    int m=2;
 
-    for(int i = x_min; i <= x_max; i++){
+    for(int i = x_min; i <= x_max; i++)
+    {
         for(int j = y_min; j <= y_max; j++)
         {
-            std::vector<Vector3f> onePixelColor;
-            std::vector<float> pixel_z;
-            for(int a=0;a<n;++a)
+            int blockinTriangle = 0;
             {
-                for(int b=0;b<m;++b)
+                auto[alpha, beta, gamma] = computeBarycentric2D(i, j, t.v);
+                float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                z_interpolated *= w_reciprocal;
+                if ((blockinTriangle=MSAA(i, j, t.v, n, m, z_interpolated, t.getColor())) > 0) 
                 {
-                    auto x_msaa=i+((1/(a+1))/2)*(2*a+1);
-                    auto y_msaa=j+1-((1/(b+1))/2)*(2*b+1);
-
-                    if(insideTriangle(x_msaa,y_msaa,t.v))
-                    {
-                        auto angle=computeBarycentric2D(x_msaa,y_msaa,t.v);
-                        float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-                        float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-                        z_interpolated *= w_reciprocal;
-
-                        if(z_interpolated<msaa_depth_buf[get_index(i,j)])
-                        {
-                            Vector3f color=t.getColor();
-                            Vector3f point(3);
-                            point << (float)x_msaa, (float)y_msaa, z_interpolated;
-                            msaa_depth_buf[get_index(x_msaa,y_msaa)] = z_interpolated;
-                            onePixelColor.push_back(color);
-                            pixel_z.push_back(z_interpolated);
-                        }
-                    }
+                    int idx = get_index(i, j);
+                    set_pixel(Eigen::Vector3f(i, j, z_interpolated), (msaa_frame_buf[idx*4]+msaa_frame_buf[idx*4+1]+msaa_frame_buf[idx*4+2]+msaa_frame_buf[idx*4+3])/4.0);
                 }
+                
             }
-            auto count=onePixelColor.size();
-            Vector3f c;
-            for(int q=0;q<count;++q)
-            {
-                c << c[0]+onePixelColor[q][0], c[1]+onePixelColor[q][1], c[2]+onePixelColor[q][2];
-            }
-
-            auto angle=computeBarycentric2D(i+0.5,j+0.5,t.v);
-            float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-            float z_interpolat = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-            z_interpolat *= w_reciprocal;
-
-            if(z_interpolat<depth_buf[get_index(i,j)])
-            {
-                depth_buf[get_index(i,j)]=z_interpolat;
-            }
-            Vector3f pix;
-            pix << i,j,z_interpolat;
-
-            set_pixel(pix, c/4);
         }
     }
 
