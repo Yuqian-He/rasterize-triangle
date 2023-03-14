@@ -57,12 +57,21 @@ In a triangle a point(x,y):
 
 $$
 (x,y)=\alpha \times A + \beta \times B + \gamma \times C
-\alpha + \beta + \gamma = 1
 $$
 
 $$
+\alpha + \beta + \gamma = 1
+$$
+result:
+$$
 \alpha = \frac{-(x-x_{B})(y_{C}-y_{B})+(y-y_{B})(x_{C}-x_{B})}{-(x_{A}-x_{B})(y_{C}-y_{B})+(y_{A}-y_{B})(x_{C}-x_{B})}
+$$
+
+$$
 \beta = \frac{-(x-x_{C})(y_{A}-y_{C})+(y-y_{C})(x_{A}-x_{C})}{-(x_{B}-x_{C})(y_{A}-y_{C})+(y_{B}-y_{C})(x_{A}-x_{C})}
+$$
+
+$$
 \gamma = 1- \alpha - \beta
 $$
 
