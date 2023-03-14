@@ -62,7 +62,9 @@ $$
 $$
 \alpha + \beta + \gamma = 1
 $$
+
 result:
+
 $$
 \alpha = \frac{-(x-x_{B})(y_{C}-y_{B})+(y-y_{B})(x_{C}-x_{B})}{-(x_{A}-x_{B})(y_{C}-y_{B})+(y_{A}-y_{B})(x_{C}-x_{B})}
 $$
